@@ -6,13 +6,13 @@ import matplotlib.pyplot as plt
 
 
 # Load models
-#maintenance_model = joblib.load("maintenance_model.pkl")
-#failure_model = joblib.load("failure_model.pkl")
+maintenance_model = joblib.load("maintenance_model.pkl")
+failure_model = joblib.load("failure_model.pkl")
 
 
 # Load models
-maintenance_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/maintenance_model.pkl")
-failure_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/failure_model.pkl")
+#maintenance_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/maintenance_model.pkl")
+#failure_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/failure_model.pkl")
 
 
 
