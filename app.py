@@ -6,8 +6,15 @@ import matplotlib.pyplot as plt
 
 
 # Load models
-maintenance_model = joblib.load("maintenance_model.pkl")
-failure_model = joblib.load("failure_model.pkl")
+#maintenance_model = joblib.load("maintenance_model.pkl")
+#failure_model = joblib.load("failure_model.pkl")
+
+
+# Load models
+maintenance_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/maintenance_model.pkl")
+failure_model = joblib.load("C:/Users/hp/Desktop/sachin/Vehicle_Health_Monitor/model/failure_model.pkl")
+
+
 
 
 
@@ -28,7 +35,7 @@ with col1:
     st.subheader(" Vehicle Details")
 
     vehicle_model = st.number_input("Vehicle Model", 0, 10, 1)
-    mileage = st.number_input("Mileage", 0, 200000, 50000)
+    mileage = st.number_input("Mileage", 0, 2000, 500)
     vehicle_age = st.number_input("Vehicle Age", 0, 20, 5)
 
     fuel_type = st.selectbox("Fuel Type", ["Petrol", "Diesel", "Electric"])
@@ -80,8 +87,14 @@ with col2:
 
 st.divider()
 
+
 # -------- PREDICTION BUTTON --------
-if st.button(" Predict Now"):
+if st.button("🔍 Predict Now"):
+
+    # ======================
+    # Create DataFrames
+    # ======================
+
     vehicle_data = pd.DataFrame([[vehicle_model, mileage, vehicle_age,
         fuel_type, transmission, engine_size, odometer, owner_type,
         insurance, accident, fuel_eff, tire, brake, battery,
@@ -101,68 +114,83 @@ if st.button(" Predict Now"):
         'Rotational speed [rpm]','Torque [Nm]','Tool wear [min]'
     ])
 
+    # ======================
+    # Predictions
+    # ======================
 
-    maintenance_pred = maintenance_model.predict(vehicle_data)
+    maintenance_prob = maintenance_model.predict_proba(vehicle_data)
+    m_prob = maintenance_prob[0][1]
+
     failure_pred = failure_model.predict(sensor_data)
     failure_prob = failure_model.predict_proba(sensor_data)
 
-    st.subheader(" Results")
+    # ======================
+    # Output Columns
+    # ======================
 
     col3, col4 = st.columns(2)
 
     with col3:
-        if maintenance_pred[0] == 1:
-            st.error(" Maintenance Required!")
-        else:
-            st.success(" Vehicle is Healthy")
+        st.subheader("🔧 Maintenance Prediction")
 
+    m_prob = maintenance_model.predict_proba(vehicle_data)[0][1]
+
+    display_prob = (m_prob - 0.5) * 0.6
+    display_prob = max(0, min(display_prob, 1))
+    st.progress(int(display_prob * 100))
+
+    if m_prob > 0.8:
+        st.error(f"⚠️ Maintenance Required ({round(display_prob*100,2)}%)")
+    else:
+        st.success(f"✅ Vehicle is Healthy ({round(display_prob*100,2)}%)")
+
+    # Failure
     with col4:
+        st.subheader("⚠️ Failure Prediction")
+
+        f_prob = failure_prob[0][1]
+
         if failure_pred[0] == 1:
-            st.error(f" High Failure Risk ({round(failure_prob[0][1]*100,2)}%)")
+            st.error(f"🔴 High Failure Risk ({round(f_prob*100,2)}%)")
         else:
-            st.success(f" Low Failure Risk ({round(failure_prob[0][1]*100,2)}%)")
+            st.success(f"🟢 Low Failure Risk ({round(f_prob*100,2)}%)")
 
     # =======================
-    # FEATURE IMPORTANCE
+    # Feature Importance
     # =======================
 
     st.divider()
-    st.subheader(" Feature Importance (Failure Model)")
+    st.subheader("📈 Feature Importance (Failure Model)")
 
     importance = pd.Series(failure_model.feature_importances_, index=[
-    'Type','Air temperature [K]','Process temperature [K]',
-    'Rotational speed [rpm]','Torque [Nm]','Tool wear [min]'
+        'Type','Air temperature [K]','Process temperature [K]',
+        'Rotational speed [rpm]','Torque [Nm]','Tool wear [min]'
     ])
 
     fig, ax = plt.subplots()
     importance.sort_values().plot(kind='barh', ax=ax)
     st.pyplot(fig)
 
-
     # =======================
-    #  SENSOR VALUES GRAPH
+    # Sensor Graph
     # =======================
 
     st.divider()
-    st.subheader(" Sensor Values Overview")
+    st.subheader("📊 Sensor Values Overview")
 
     sensor_df = pd.DataFrame({
-    "Feature": ['Air Temp','Process Temp','RPM','Torque','Tool Wear'],
-    "Value": [air_temp, process_temp, rpm, torque, tool_wear]
+        "Feature": ['Air Temp','Process Temp','RPM','Torque','Tool Wear'],
+        "Value": [air_temp, process_temp, rpm, torque, tool_wear]
     })
 
     st.bar_chart(sensor_df.set_index("Feature"))
 
-
     # =======================
-    #  FAILURE PROBABILITY
+    # Failure Probability Bar
     # =======================
 
     st.divider()
-    st.subheader(" Failure Probability")
+    st.subheader("⚠️ Failure Probability")
 
-    prob = round(failure_prob[0][1]*100, 2)
-
-    st.progress(int(prob))
-
-    st.write(f"Failure Risk: {prob}%")
+    st.progress(int(f_prob * 100))
+    st.write(f"Failure Risk: {round(f_prob*100,2)}%")
