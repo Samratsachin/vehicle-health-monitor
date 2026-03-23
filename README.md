@@ -10,7 +10,8 @@ The system uses machine learning models and an interactive web dashboard to anal
 ---
 
 ## 🚀 Live Demo
-👉 [Click here to use the app]([YOUR_STREAMLIT_LINK_HERE](https://vehicle-health-monitor-ypedb3vfpjmpwvwrjmv29c.streamlit.app/))
+👉 [https://vehicle-health-monitor-ypedb3vfpjmpwvwrjmv29c.streamlit.app/](https://vehicle-health-monitor-ypedb3vfpjmpwvwrjmv29c.streamlit.app/))
+https://vehicle-health-monitor-ypedb3vfpjmpwvwrjmv29c.streamlit.app/
 
 ---
 
